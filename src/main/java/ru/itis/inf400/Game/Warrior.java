@@ -1,4 +1,4 @@
-package ru.itis.inf400;
+package ru.itis.inf400.Game;
 
 public abstract class Warrior extends Card{
     private int hp;

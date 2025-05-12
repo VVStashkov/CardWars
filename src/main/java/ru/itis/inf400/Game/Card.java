@@ -1,9 +1,8 @@
-package ru.itis.inf400;
+package ru.itis.inf400.Game;
 
 public abstract class Card {
     private String name;
     private String description;
     private int cost;
-
-    public abstract void use(int position);
+    protected FieldTypes type;
 }
