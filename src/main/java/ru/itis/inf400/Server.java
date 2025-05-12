@@ -30,7 +30,7 @@ public class Server {
             throw new RuntimeException(e);
         }
     }
-    public static void startGame() throws FileNotFoundException {
+    public static void startGame() {
         Client.setPlayer(new Player(Client.getClientSocket()));
         player = new Player(clientSocket);
         System.out.println("Кто ходит первый? \n" + "1 - игрок-сервер \n" + "2 - игрок-клиент");

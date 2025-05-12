@@ -3,7 +3,6 @@ package ru.itis.inf400;
 import ru.itis.inf400.Game.Player;
 
 import java.io.*;
-import java.lang.management.PlatformLoggingMXBean;
 import java.net.Socket;
 import java.util.Scanner;
 
@@ -19,8 +18,10 @@ public class Client {
 
         try {
             clientSocket = new Socket("127.0.0.1", 50000);
+            System.out.println(clientSocket);
             in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
+//            while (true) {}
 
         } catch (IOException e) {
             throw new RuntimeException(e);
