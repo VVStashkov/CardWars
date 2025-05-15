@@ -14,7 +14,7 @@ public class Server {
     private static BufferedReader in;
     private static BufferedWriter out;
     private static Player player;
-    private static String name;
+    private static String nameOfPlayer;
     private static Scanner sc = new Scanner(System.in);
 
     public static void main(String[] args) {
@@ -24,15 +24,29 @@ public class Server {
             clientSocket = server.accept();
             in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
+            in.read();
+            setNameOfPlayer();
+            send("Имя соперника: " + nameOfPlayer + "\n");
+            System.out.println(in.readLine());
             startGame();
+            while (true) {
+                System.out.println(in.readLine());
+
+            }
 
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
+    public static void send(String str) throws IOException {
+        out.write(str + "\n");
+        out.flush();
+    }
+
+    //А зачем вообще давать такой выбор, можем же просто сделать по базе первым игроком сервер, типа
+    //типа пускай пользователь сам решит кто хост и кто первый ходит
     public static void startGame() {
-        Client.setPlayer(new Player(Client.getClientSocket()));
-        player = new Player(clientSocket);
+        player = new Player();
         System.out.println("Кто ходит первый? \n" + "1 - игрок-сервер \n" + "2 - игрок-клиент");
         String c = sc.nextLine();
         if (c.equals("1")) {
@@ -46,8 +60,8 @@ public class Server {
             startGame();
         }
     }
-    public static void setName() {
-        System.out.println("Введите своё имя: ");
-        name = sc.nextLine();
+    public static void setNameOfPlayer() {
+        System.out.println("Введите имя вашего игрока: ");
+        nameOfPlayer = sc.nextLine();
     }
 }

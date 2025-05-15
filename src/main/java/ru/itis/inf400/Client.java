@@ -7,7 +7,7 @@ import java.net.Socket;
 import java.util.Scanner;
 
 public class Client {
-    private static String name;
+    private static String nameOfPlayer;
     private static Socket clientSocket;
     private static BufferedReader in;
     private static BufferedWriter out;
@@ -18,18 +18,29 @@ public class Client {
 
         try {
             clientSocket = new Socket("127.0.0.1", 50000);
-            System.out.println(clientSocket);
             in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
-//            while (true) {}
+
+            player = new Player();
+            send("");
+            System.out.println(in.readLine());
+            setNameOfPlayer();
+            send("Имя соперника: " + nameOfPlayer + "\n");
+            System.out.println(in.readLine());
+
+
 
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-    public static void setName() {
-        System.out.println("Введите своё имя: ");
-        name = sc.nextLine();
+    public static void send(String str) throws IOException {
+        out.write(str + "\n");
+        out.flush();
+    }
+    public static void setNameOfPlayer() {
+        System.out.println("Введите имя вашего игрока: ");
+        nameOfPlayer = sc.nextLine();
     }
     public static void setPlayer(Player player) {
         Client.player = player;

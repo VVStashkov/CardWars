@@ -4,15 +4,13 @@ import java.net.Socket;
 import java.util.List;
 
 public class Player {
-    public Socket clientSocket;
 
-    private int hp = 20;
+    private int hp = 25;
     private List<Card> deck;
     private List<Card> hand;
     private List<Field> fields;
 
-    public Player(Socket clientSocket) {
-        this.clientSocket = clientSocket;
+    public Player() {
     }
 
     public void makeMove() {
