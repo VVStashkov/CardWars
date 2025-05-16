@@ -5,6 +5,7 @@ import java.util.List;
 
 public class Player {
 
+    private int actionPoint = 2;
     private int hp = 25;
     private List<Card> deck;
     private List<Card> hand;
@@ -16,12 +17,12 @@ public class Player {
     public void makeMove() {
         int actionPoint = 2;
 
-        printActionChoose(actionPoint);
+        printActionChoose();
 
     }
 
 
-    public void printActionChoose(int actionPoint) {
+    public void printActionChoose() {
         if (actionPoint > 0) {
             System.out.println("1 - начать ход \n " +
                     "2 - взять карту \n" +
@@ -31,4 +32,7 @@ public class Player {
         }
     }
 
+    public int getActionPoint() {
+        return actionPoint;
+    }
 }

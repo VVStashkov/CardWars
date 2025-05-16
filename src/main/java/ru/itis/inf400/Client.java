@@ -27,14 +27,17 @@ public class Client {
             setNameOfPlayer();
             send("Имя соперника: " + nameOfPlayer + "\n");
             System.out.println(in.readLine());
-
+            System.out.println(in.readLine());//прочитали правила
 
 
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-    public static void send(String str) throws IOException {
+
+    //приват ибо метод не может работать при вызове из другого класса
+    private static void send(String str) throws IOException {
+        out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
         out.write(str + "\n");
         out.flush();
     }

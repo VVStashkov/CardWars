@@ -19,7 +19,7 @@ public class Game {
 
     public void start(){
             printRules();
-            //.....
+            //возможно на это и стоит закончить
     }
     public void printRules(){
         try {
@@ -31,7 +31,7 @@ public class Game {
 
 
             //стримами передать правила игрокам
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
