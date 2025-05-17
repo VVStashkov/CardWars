@@ -21,19 +21,18 @@ public class Game {
             printRules();
             //возможно на это и стоит закончить
     }
-    public void printRules(){
+    public String printRules(){
+        String rule = "";
         try {
             Scanner sc = new Scanner(new File("rules.txt"));
-            String rule = "";
+
             while (sc.hasNextLine()) {
                 rule = rule + sc.nextLine();
             }
-
-
-            //стримами передать правила игрокам
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return rule;
 
     }
 }

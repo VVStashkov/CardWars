@@ -1,8 +1,28 @@
 package ru.itis.inf400.Game;
 
 public abstract class Warrior extends Card{
-    private int hp;
-    private int attack;
+    protected int hp;
+    protected int attack;
+    protected int position;
+    protected boolean flupped;
+
+    protected void put(Player player, int position) {
+        Field field = player.getFields().get(position);
+        if (field.getWarrior() != null) {
+            player.getDrop().add(field.getWarrior());
+        }
+        field.setWarrior(this);
+        this.position = position;
+    }
+
+    public void attack(Player player) {
+        player.setHp(player.getHp() - attack);
+    }
+
+    public void attack(Warrior warrior) {
+        warrior.hp -= attack;
+        hp -= warrior.attack;
+    }
 
 
 }

@@ -26,8 +26,8 @@ public class Client {
             System.out.println(in.readLine());
             setNameOfPlayer();
             send("Имя соперника: " + nameOfPlayer + "\n");
-            System.out.println(in.readLine());
             System.out.println(in.readLine());//прочитали правила
+            send("");//передали управление серверу
 
 
         } catch (IOException e) {

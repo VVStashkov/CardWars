@@ -26,29 +26,42 @@ public class Server {
             out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
             in.read();
             setNameOfPlayer();
-            send("Имя соперника: " + nameOfPlayer + "\n");
-            System.out.println(in.readLine());
+            send("Имя соперника: " + nameOfPlayer );
+            System.out.println(in.readLine()); // имя соперника
             Game game = createGame();
-            game.start();
-            System.out.println(in.readLine());//прочитали правила
-            while (true) {
-                while (player.getActionPoint() > 0) {
+            String rule = game.printRules();
 
+            System.out.println(rule);//прочитали правила
+            send(rule);
+            play();
 
-                    player.printActionChoose();
-                    int choose = Integer.parseInt(sc.nextLine());
-                    switch (choose) {
-                        case 1:
-
-                    }
-                }
-            }
 
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    private static void play() throws IOException {
+
+        while (player.getHp() > 0 && Client.getPlayer().getHp() > 0) {
+            String actions = "";
+            while (player.getActionPoint() >= 0) {
+                player.printActionChoose();
+                actions = "";
+                String choose = sc.nextLine();
+                switch (choose) {
+                    case "1":
+
+                        actions += " /////";
+                    case "2":
+                        //....
+
+                }
+            }
+
+            send(actions);
+        }
+    }
     //приват ибо метод не может работать при вызове из другого класса
     private static void send(String str) throws IOException {
         out.write(str + "\n");
