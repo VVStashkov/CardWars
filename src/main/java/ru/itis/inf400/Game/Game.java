@@ -17,11 +17,8 @@ public class Game {
         this.player2 = player2;
     }
 
-    public void start(){
-            printRules();
-            //возможно на это и стоит закончить
-    }
-    public String printRules(){
+
+    public String Rules(){
         String rule = "";
         try {
             Scanner sc = new Scanner(new File("rules.txt"));

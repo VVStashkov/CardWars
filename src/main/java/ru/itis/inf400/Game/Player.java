@@ -1,6 +1,5 @@
 package ru.itis.inf400.Game;
 
-import java.net.Socket;
 import java.util.List;
 
 public class Player {
@@ -16,7 +15,7 @@ public class Player {
     }
 
     public void attack(Player enemyPlayer) {
-        for (int i = 0; i < 4; ++i) {
+        for (int i = 0; i < fields.size(); ++i) {
             Warrior warrior = fields.get(i).getWarrior();
             if (warrior != null && !warrior.flupped) {
                 Warrior enemyWarrior = enemyPlayer.getFields().get(i).getWarrior();
@@ -25,7 +24,7 @@ public class Player {
                 } else {
                     warrior.attack(enemyWarrior);
                     checkDeathOfWarrior(warrior, enemyPlayer);
-                    checkDeathOfWarrior(enemyWarrior, this);
+                    enemyPlayer.checkDeathOfWarrior(enemyWarrior, this);
 
                 }
             }
@@ -33,14 +32,34 @@ public class Player {
         actionPoint = 2;
     }
 
+    // enemyWarrior передаётся чтобы можно было сделать unflup
     public void checkDeathOfWarrior(Warrior warrior, Player enemyPlayer) {
         if (warrior.hp <= 0) {
             drop.add(warrior);
             fields.get(warrior.position).setWarrior(null);
             if (warrior instanceof Flupable && warrior.flupped) {
-                Flupable warrior1 = (Flupable) warrior;
-                warrior1.unflup(this, enemyPlayer, warrior1.getFlupPosition());
+                Flupable FlupableWarrior = (Flupable) warrior;
+                FlupableWarrior.unflup(this, enemyPlayer);
             }
+        }
+    }
+
+    public void flupWarrior(int position, Player enemyPlayer) {
+        Warrior warrior = fields.get(position).getWarrior();
+        if (warrior instanceof Flupable ) {
+            Flupable FlupableWarrior = (Flupable)  warrior;
+            FlupableWarrior.flup(this, enemyPlayer);
+        } else {
+            System.out.println("Карту нельзя флюпнуть");
+        }
+    }
+    public void flupBuilding(int position, Player enemyPlayer) {
+        Building building = fields.get(position).getBuilding();
+        if (building instanceof Flupable ) {
+            Flupable FlupableBuilding = (Flupable)  building;
+            FlupableBuilding.flup(this, enemyPlayer);
+        } else {
+            System.out.println("Карту нельзя флюпнуть");
         }
     }
 
@@ -48,20 +67,35 @@ public class Player {
         if (actionPoint >= 0) {
             System.out.println("1 - начать атаку \n" +
                     "2 - флюпнуть карту \n" +
-                    "3 - использовать карту \n ");
+                    "3 - использовать карту \n" +
+                    "4 - посмотреть карты на руке \n" +
+                    "5 - посмотреть карты на полях");
             //
         }
         if (actionPoint > 0) {
-            System.out.println("4 - взять карту \n");
+            System.out.println("6 - взять карту \n");
 
         }
     }
-    public void printFlupableCards() {
+    public void printFlupableWarrior() {
+        int i = 1;
         for(Field field : fields) {
             if (field.getWarrior() instanceof Flupable) {
-                System.out.println(field.getWarrior().description);
+                System.out.println(i + ") " + field.getWarrior().description);
             }
+            ++i;
         }
+
+    }
+    public void printFlupableBuildings() {
+        int i = 1;
+        for(Field field : fields) {
+            if (field.getBuilding() instanceof Flupable) {
+                System.out.println(i + "поле) " + field.getBuilding().description);
+            }
+            ++i;
+        }
+
     }
 
     public int getActionPoint() {

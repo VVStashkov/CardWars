@@ -5,7 +5,7 @@ public interface Flupable {
     //position означает номер поля(твоего или соперника), на которое будет применена способность,
     //в случае если это значение не используется флюпом, указывать -1
     int flupPosition = -1;
-    void flup(Player p1, Player p2, int flupPosition);
-    void unflup(Player p1, Player p2, int flupPosition);
+    void flup(Player p1, Player p2);
+    void unflup(Player p1, Player p2);
     int getFlupPosition();
 }

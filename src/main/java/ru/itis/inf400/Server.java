@@ -13,7 +13,7 @@ public class Server {
     private static Socket clientSocket;
     private static BufferedReader in;
     private static BufferedWriter out;
-    private static Player player;
+    private static Player player = new Player();
     private static String nameOfPlayer;
     private static Scanner sc = new Scanner(System.in);
 
@@ -28,8 +28,8 @@ public class Server {
             setNameOfPlayer();
             send("Имя соперника: " + nameOfPlayer );
             System.out.println(in.readLine()); // имя соперника
-            Game game = createGame();
-            String rule = game.printRules();
+            Game game = new Game(player, Client.getPlayer());
+            String rule = game.Rules();
 
             System.out.println(rule);//прочитали правила
             send(rule);
@@ -51,9 +51,26 @@ public class Server {
                 String choose = sc.nextLine();
                 switch (choose) {
                     case "1":
-
-                        actions += " /////";
+                        player.attack(Client.getPlayer());
+                        actions += "произвёл атаку + \n";
                     case "2":
+                        System.out.println("1 - воина + \n + 2 - здание");
+                        if (sc.nextLine().equals("1")) {
+                            player.printFlupableWarrior();
+                            System.out.println("Введите номер поля для флюпа");
+                            int p = Integer.parseInt(sc.nextLine());
+                            player.flupWarrior(p, Client.getPlayer());
+                            actions += "флюпнул воина " + p;
+
+                        } else {
+                            player.printFlupableBuildings();
+                            System.out.println("Введите номер поля для флюпа");
+                            int p = Integer.parseInt(sc.nextLine());
+                            player.flupBuilding(p, Client.getPlayer());
+                            actions += "флюпнул строение " + p;
+                        }
+
+
                         //....
 
                 }
