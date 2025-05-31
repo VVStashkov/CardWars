@@ -6,5 +6,6 @@ public abstract class Card {
     protected int cost;
     protected FieldTypes type;
 
-    abstract protected void put(Player player, int position);
+    abstract protected void put(Player player, Player enemyPlayer);
+    // в зависимости от реализации будем спрашивать позицию для применения карты
 }

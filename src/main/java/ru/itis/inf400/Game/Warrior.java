@@ -13,6 +13,10 @@ public abstract class Warrior extends Card{
         }
         field.setWarrior(this);
         this.position = position;
+        Building building = field.getBuilding();
+        if (building != null) {
+            building.doConstantAction(this);
+        }
     }
 
     public void attack(Player player) {

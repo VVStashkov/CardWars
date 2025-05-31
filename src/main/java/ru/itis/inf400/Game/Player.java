@@ -10,6 +10,7 @@ public class Player {
     private List<Card> hand;
     private List<Field> fields;
     private List<Card> drop;
+    private List<Spell> usedSpells;
 
     public Player() {
     }
@@ -25,6 +26,8 @@ public class Player {
                     warrior.attack(enemyWarrior);
                     checkDeathOfWarrior(warrior, enemyPlayer);
                     enemyPlayer.checkDeathOfWarrior(enemyWarrior, this);
+                    undoSpells(enemyPlayer);
+                    //прописать отмену заклинаний
 
                 }
             }
@@ -42,6 +45,14 @@ public class Player {
                 FlupableWarrior.unflup(this, enemyPlayer);
             }
         }
+    }
+    public void undoSpells(Player enemyPlayer) {
+        for (Spell spell : usedSpells) {
+            spell.undo(this, enemyPlayer);
+        }
+    }
+    public void put(int num, Player enemyPlayer) {
+        hand.get(num).put(this,enemyPlayer);
     }
 
     public void flupWarrior(int position, Player enemyPlayer) {
@@ -77,6 +88,14 @@ public class Player {
 
         }
     }
+
+    public void printHand() {
+        int i = 1;
+        for(Card card : hand) {
+            System.out.println(i + ") " + card.description);
+        }
+    }
+
     public void printFlupableWarrior() {
         int i = 1;
         for(Field field : fields) {

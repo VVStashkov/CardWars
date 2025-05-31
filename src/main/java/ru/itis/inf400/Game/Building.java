@@ -1,6 +1,6 @@
 package ru.itis.inf400.Game;
 
-public abstract class Building extends Card implements Flupable {
+public abstract class Building extends Card{
     protected int position;
     protected boolean flupped;
     protected void put(Player player, int position) {
@@ -12,4 +12,6 @@ public abstract class Building extends Card implements Flupable {
         this.position = position;
 
     }
+    //изменяет атрибуты warrior в зависимости от свойств строения
+    abstract public void doConstantAction(Warrior warrior);
 }

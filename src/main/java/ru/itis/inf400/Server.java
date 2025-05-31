@@ -59,7 +59,7 @@ public class Server {
                             player.printFlupableWarrior();
                             System.out.println("Введите номер поля для флюпа");
                             int p = Integer.parseInt(sc.nextLine());
-                            player.flupWarrior(p, Client.getPlayer());
+                            player.flupWarrior(p - 1, Client.getPlayer());// -1 для отчёта от 0
                             actions += "флюпнул воина " + p;
 
                         } else {
@@ -69,6 +69,12 @@ public class Server {
                             player.flupBuilding(p, Client.getPlayer());
                             actions += "флюпнул строение " + p;
                         }
+                    case "3":
+                        player.printHand();
+                        System.out.println("Введите номер разыгрываемой карты ");
+                        int num = Integer.parseInt(sc.nextLine());
+                        player.put(num, Client.getPlayer());
+
 
 
                         //....
