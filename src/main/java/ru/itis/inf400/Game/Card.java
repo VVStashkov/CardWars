@@ -8,4 +8,9 @@ public abstract class Card {
 
     abstract protected void put(Player player, Player enemyPlayer);
     // в зависимости от реализации будем спрашивать позицию для применения карты
+
+
+    public String getDescription() {
+        return description;
+    }
 }

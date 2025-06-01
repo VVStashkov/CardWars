@@ -6,7 +6,8 @@ public abstract class Warrior extends Card{
     protected int position;
     protected boolean flupped;
 
-    protected void put(Player player, int position) {
+    @Override
+    public void put(Player player, Player enemyPlayer) {
         Field field = player.getFields().get(position);
         if (field.getWarrior() != null) {
             player.getDrop().add(field.getWarrior());

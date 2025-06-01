@@ -1,5 +1,6 @@
 package ru.itis.inf400.Game;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Player {
@@ -9,8 +10,8 @@ public class Player {
     private List<Card> deck;
     private List<Card> hand;
     private List<Field> fields;
-    private List<Card> drop;
-    private List<Spell> usedSpells;
+    private List<Card> drop = new ArrayList<>();
+    private List<Spell> usedSpells = new ArrayList<>();
 
     public Player() {
     }
@@ -50,9 +51,15 @@ public class Player {
         for (Spell spell : usedSpells) {
             spell.undo(this, enemyPlayer);
         }
+        usedSpells = new ArrayList<>();
     }
     public void put(int num, Player enemyPlayer) {
-        hand.get(num).put(this,enemyPlayer);
+        Card card = hand.get(num);
+        if ( card instanceof Spell) {
+            usedSpells.add((Spell) card);
+        }
+        card.put(this,enemyPlayer);
+        actionPoint -= card.cost;
     }
 
     public void flupWarrior(int position, Player enemyPlayer) {

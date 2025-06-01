@@ -4,7 +4,7 @@ public class Field {
     private FieldTypes type;
     private Warrior warrior;
     private Building building;
-    private boolean inverted;
+
 
     public FieldTypes getType() {
         return type;
@@ -30,11 +30,4 @@ public class Field {
         this.building = building;
     }
 
-    public boolean isInverted() {
-        return inverted;
-    }
-
-    public void setInverted(boolean inverted) {
-        this.inverted = inverted;
-    }
 }
