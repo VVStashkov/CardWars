@@ -1,14 +1,16 @@
 package ru.itis.inf400.Game;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
-public class Player {
+public class Player implements Serializable {
 
     private int actionPoint = 2;
     private int hp = 25;
-    private List<Card> deck;
-    private List<Card> hand;
+    private List<Card> deck = new LinkedList<>();
+    private List<Card> hand = new ArrayList<>();
     private List<Field> fields;
     private List<Card> drop = new ArrayList<>();
     private List<Spell> usedSpells = new ArrayList<>();
@@ -33,7 +35,8 @@ public class Player {
                 }
             }
         }
-        actionPoint = 2;
+        actionPoint = 3;
+        takeCard();
     }
 
     // enemyWarrior передаётся чтобы можно было сделать unflup
@@ -43,7 +46,7 @@ public class Player {
             fields.get(warrior.position).setWarrior(null);
             if (warrior instanceof Flupable && warrior.flupped) {
                 Flupable FlupableWarrior = (Flupable) warrior;
-                FlupableWarrior.unflup(this, enemyPlayer);
+                FlupableWarrior.unFlup(this, enemyPlayer);
             }
         }
     }
@@ -54,8 +57,8 @@ public class Player {
         usedSpells = new ArrayList<>();
     }
     public void put(int num, Player enemyPlayer) {
-        Card card = hand.get(num);
-        if ( card instanceof Spell) {
+        Card card = hand.remove(num);
+        if (card instanceof Spell) {
             usedSpells.add((Spell) card);
         }
         card.put(this,enemyPlayer);
@@ -99,8 +102,13 @@ public class Player {
     public void printHand() {
         int i = 1;
         for(Card card : hand) {
-            System.out.println(i + ") " + card.description);
+            System.out.println(i++ + ") " + card.description);
         }
+    }
+    public void takeCard(){
+        hand.add(deck.getLast());
+        deck.removeLast();
+        actionPoint--;
     }
 
     public void printFlupableWarrior() {

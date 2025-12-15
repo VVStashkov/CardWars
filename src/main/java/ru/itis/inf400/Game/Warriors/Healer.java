@@ -10,20 +10,28 @@ public class Healer extends Warrior implements Flupable {
         hp = 4;
         attack = 0;
         cost = 1;
+        description = "целитель лечит соседних воинов на 2 хп, hp = 4, attack = 0, cost = 1";
     }
 
     @Override
-    public void flup(Player p1, Player p2) {
-
+    public void flup(Player player, Player enemyPlayer) {
+        if (position < player.getFields().size() - 1) {
+            Warrior rightW =  player.getFields().get(position - 1).getWarrior();
+            if (rightW != null) {
+                rightW.setHp(rightW.getHp() + 2);
+            }
+        }
+        if (position > 0) {
+            Warrior leftW = player.getFields().get(position + 1).getWarrior();
+            if (leftW != null) {
+                leftW.setHp(leftW.getHp() + 2);
+            }
+        }
     }
 
     @Override
-    public void unflup(Player p1, Player p2) {
-
+    public void unFlup(Player player, Player enemyPlayer) {
+        //отмены флюпа нет
     }
 
-    @Override
-    public int getFlupPosition() {
-        return 0;
-    }
 }

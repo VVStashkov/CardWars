@@ -9,10 +9,10 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class Server {
-    public static final int SERVER_PORT = 50000;
+    public static final int SERVER_PORT = 50001;
     private static Socket clientSocket;
-    private static BufferedReader in;
-    private static BufferedWriter out;
+//    private static BufferedReader in;
+//    private static BufferedWriter out;
     private static ObjectInputStream objIn;
     private static ObjectOutputStream objOut;
     private static Player player = new Player();
@@ -26,35 +26,40 @@ public class Server {
             ServerSocket server = new ServerSocket(SERVER_PORT);
             System.out.println("start server");
             clientSocket = server.accept();
-            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
-            objIn = new ObjectInputStream(clientSocket.getInputStream());
+//            out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
+//            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             objOut = new ObjectOutputStream(clientSocket.getOutputStream());
-            in.read();
+            objOut.flush(); // Важно!
+            objIn = new ObjectInputStream(clientSocket.getInputStream());
+            System.out.println("sdf");
+
+            objIn.readObject();
             setNameOfPlayer();
             send("Имя соперника: " + nameOfPlayer );
-            System.out.println(in.readLine()); // имя соперника
+            System.out.println(objIn.readObject()); // имя соперника
             game = new Game(player, Client.getPlayer());
             String rule = game.rules();
-
-
-            System.out.println(rule);//прочитали правила
-            send("");
-            in.read();
+            System.out.println(rule);
+            game.setDefaultAttributes();
+            send(game);
+            objIn.readObject();
             play();
-
-
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 
     public static void play() throws IOException {
 
+
         while (game.getServerPlayer().getHp() > 0 && game.getClientPlayer().getHp() > 0) {
+
             String actions = game.serverStep();
             send(actions);
-            in.read();
+            objIn.read();
+
             if (actions.equals("next")) {
                 break;
 
@@ -65,9 +70,14 @@ public class Server {
         acceptActions();
     }
     private static void acceptActions() throws IOException {
-        objOut.writeObject(game);
+        send(game);
         while (true) {
-            String message = in.readLine();
+            String message;
+            try {
+                message = (String) objIn.readObject();
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
             System.out.println(message);
             if (message.equals("next")) {
                 send("");
@@ -78,14 +88,15 @@ public class Server {
                 }
                 break;
             }
+            send("");
         }
         play();
 
     }
     //приват ибо метод не может работать при вызове из другого класса
-    private static void send(String str) throws IOException {
-        out.write(str + "\n");
-        out.flush();
+    private static void send(Object str) throws IOException {
+        objOut.writeObject(str);
+        objOut.flush();
     }
 
     public static void setNameOfPlayer() {

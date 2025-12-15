@@ -1,10 +1,15 @@
 package ru.itis.inf400.Game;
 
-public class Field {
+import java.io.Serializable;
+
+public class Field implements Serializable {
     private FieldTypes type;
     private Warrior warrior;
     private Building building;
 
+    public Field(FieldTypes type) {
+        this.type = type;
+    }
 
     public FieldTypes getType() {
         return type;

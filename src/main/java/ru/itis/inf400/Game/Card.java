@@ -1,6 +1,8 @@
 package ru.itis.inf400.Game;
 
-public abstract class Card {
+import java.io.Serializable;
+
+public abstract class Card implements Serializable {
     protected String name;
     protected String description;
     protected int cost;
