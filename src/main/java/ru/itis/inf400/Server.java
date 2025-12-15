@@ -1,7 +1,7 @@
 package ru.itis.inf400;
 
-import ru.itis.inf400.Game.Game;
-import ru.itis.inf400.Game.Player;
+import ru.itis.inf400.Cards.Game;
+import ru.itis.inf400.Cards.Player;
 
 import java.util.Scanner;
 import java.io.*;

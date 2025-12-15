@@ -1,9 +1,9 @@
-package ru.itis.inf400.Game;
+package ru.itis.inf400.Cards;
 
 
-import ru.itis.inf400.Game.Warriors.Buffer;
-import ru.itis.inf400.Game.Warriors.Healer;
-import ru.itis.inf400.Game.Warriors.Swordsman;
+import ru.itis.inf400.Cards.Warriors.Buffer;
+import ru.itis.inf400.Cards.Warriors.Healer;
+import ru.itis.inf400.Cards.Warriors.Swordsman;
 
 import java.io.*;
 import java.util.ArrayList;

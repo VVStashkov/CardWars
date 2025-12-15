@@ -1,4 +1,4 @@
-package ru.itis.inf400.Game;
+package ru.itis.inf400.Cards;
 
 public abstract class Spell extends Card {
     //метод put у каждого дочернего класса свой

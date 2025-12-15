@@ -1,4 +1,4 @@
-package ru.itis.inf400.Game;
+package ru.itis.inf400.Cards;
 
 import java.io.Serializable;
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package ru.itis.inf400.Game;
+package ru.itis.inf400.Cards;
 
 public abstract class Building extends Card{
     protected int position;

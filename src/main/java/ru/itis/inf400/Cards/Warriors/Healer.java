@@ -1,8 +1,8 @@
-package ru.itis.inf400.Game.Warriors;
+package ru.itis.inf400.Cards.Warriors;
 
-import ru.itis.inf400.Game.Flupable;
-import ru.itis.inf400.Game.Player;
-import ru.itis.inf400.Game.Warrior;
+import ru.itis.inf400.Cards.Flupable;
+import ru.itis.inf400.Cards.Player;
+import ru.itis.inf400.Cards.Warrior;
 
 public class Healer extends Warrior implements Flupable {
 

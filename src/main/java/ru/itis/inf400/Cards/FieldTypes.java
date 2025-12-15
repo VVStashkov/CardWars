@@ -1,4 +1,4 @@
-package ru.itis.inf400.Game;
+package ru.itis.inf400.Cards;
 
 public enum FieldTypes {
     BLUEFIELD,
