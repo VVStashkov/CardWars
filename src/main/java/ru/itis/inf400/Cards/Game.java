@@ -23,7 +23,7 @@ public class Game implements Serializable{
         this.clientPlayer = clientPlayer;
     }
 
-    public String rules(){
+    public static String rules(){
         String rule = "";
         try {
             Scanner sc = new Scanner(new File("rules.txt"));

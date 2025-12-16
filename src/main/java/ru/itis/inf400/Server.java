@@ -9,7 +9,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class Server {
-    public static final int SERVER_PORT = 50001;
+    public static final int SERVER_PORT = 5001;
     private static Socket clientSocket;
 //    private static BufferedReader in;
 //    private static BufferedWriter out;

@@ -57,7 +57,7 @@ public class Client {
 
 
 
-//    asfasfasdfasdfsfsfass  s aasd  asd  a
+
     private static void acceptActions() throws IOException {
         send(game);
         while (true) {
