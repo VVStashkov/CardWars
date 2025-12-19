@@ -80,7 +80,13 @@ public class ClientProcessor {
                     this.roomName = joinedRoomInfo.roomName();
                     gameClientApp.onRoomJoined(joinedRoomInfo.roomName(), joinedRoomInfo.playerId());
                     break;
-
+                case PLAYER_JOINED:
+                    PlayerJoined playerJoined = JsonUtil.fromJson(
+                            gameMessage.getPayloadAsString(),
+                            PlayerJoined.class
+                    );
+                    gameClientApp.onPlayerJoined(playerJoined);
+                    break;
                 case ROOM_NOT_FOUND:
                     gameClientApp.onRoomNotFound(roomName);
                     break;

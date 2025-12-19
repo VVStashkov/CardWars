@@ -48,7 +48,8 @@ public class Room {
         gameStarted = true;
 
         // Инициализируем игру
-        game = new Game(players.get(1), players.get(2));
+        //todo изменить реализацию
+//        game = new Game(players.get(1), players.get(2));
         game.setDefaultAttributes();
 
         // Определяем, кто ходит первым (например, игрок 1)
@@ -286,6 +287,9 @@ public class Room {
     }
 
     // Getters
+    public ClientHandler getPlayer(int playerId) {
+        return players.get(playerId);
+    }
     public String getName() { return name; }
     public boolean isFull() { return players.size() >= 2; }
     public boolean hasPlayer(int playerId) { return players.containsKey(playerId); }

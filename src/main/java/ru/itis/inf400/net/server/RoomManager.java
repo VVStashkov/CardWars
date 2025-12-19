@@ -2,7 +2,7 @@ package ru.itis.inf400.net.server;
 
 import ru.itis.inf400.net.dto.GameMessage;
 import ru.itis.inf400.net.dto.MessageType;
-import ru.itis.inf400.net.dto.records.StartGame;
+import ru.itis.inf400.net.dto.records.PlayerJoined;
 import ru.itis.inf400.net.util.JsonUtil;
 
 import java.io.IOException;
@@ -14,12 +14,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class RoomManager {
     private final Map<String, Room> rooms;
     private final AtomicInteger roomIdCounter;
-    private final Map<Integer, ClientHandler> connectedClients;
 
     public RoomManager() {
         this.rooms = new ConcurrentHashMap<>();
         this.roomIdCounter = new AtomicInteger(1);
-        this.connectedClients = new ConcurrentHashMap<>();
     }
 
     public String createRoom(ClientHandler creator) {
@@ -29,7 +27,7 @@ public class RoomManager {
         rooms.put(roomName, room);
 
         creator.setRoom(room);
-        creator.setPlayerId(1); // Первый игрок получает id = 1
+        creator.setPlayerId(1);
 
         System.out.println("Room created: " + roomName + " by player " + creator.getPlayerId());
         return roomName;
@@ -47,10 +45,32 @@ public class RoomManager {
 
         room.addPlayer(joiner);
         joiner.setRoom(room);
-        joiner.setPlayerId(2); // Второй игрок получает id = 2
+        joiner.setPlayerId(2);
 
         System.out.println("Player " + joiner.getPlayerId() + " joined room: " + roomName);
+
+        // Уведомляем первого игрока о присоединении второго
+        notifyPlayerJoined(room, joiner.getPlayerId());
+
         return true;
+    }
+
+    private void notifyPlayerJoined(Room room, int playerId) {
+        // Отправляем уведомление первому игроку (playerId = 1)
+        ClientHandler firstPlayer = room.getPlayer(1);
+        if (firstPlayer != null) {
+            try {
+                PlayerJoined playerJoined = new PlayerJoined(playerId);
+                GameMessage message = new GameMessage(
+                        MessageType.PLAYER_JOINED,
+                        JsonUtil.toJson(playerJoined)
+                );
+                firstPlayer.sendMessage(message);
+                System.out.println("Notified player 1 about player " + playerId + " joined");
+            } catch (IOException e) {
+                System.err.println("Failed to send player joined notification: " + e.getMessage());
+            }
+        }
     }
 
     public boolean startGame(String roomName, int clientId) {
@@ -81,13 +101,5 @@ public class RoomManager {
     public void removeRoom(String roomName) {
         rooms.remove(roomName);
         System.out.println("Room removed: " + roomName);
-    }
-
-    public void registerClient(int clientId, ClientHandler handler) {
-        connectedClients.put(clientId, handler);
-    }
-
-    public void unregisterClient(int clientId) {
-        connectedClients.remove(clientId);
     }
 }

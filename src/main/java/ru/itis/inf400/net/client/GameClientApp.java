@@ -1,4 +1,3 @@
-// GameClientApp.java - обновленная версия
 package ru.itis.inf400.net.client;
 
 import javafx.application.Application;
@@ -12,6 +11,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import ru.itis.inf400.net.dto.records.GameState;
+import ru.itis.inf400.net.dto.records.PlayerJoined;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -25,12 +25,15 @@ public class GameClientApp extends Application {
 
     private int playerId;
     private String currentRoom;
+    private boolean isCreator;
 
     private String serverHost = "localhost";
     private int serverPort = 5555;
 
     // Для списка комнат
     private ObservableList<String> availableRooms = FXCollections.observableArrayList();
+
+    private Button startButton;
 
     @Override
     public void start(Stage primaryStage) {
@@ -175,6 +178,8 @@ public class GameClientApp extends Application {
     }
 
     private void showWaitingScene(String roomName, boolean isCreator) {
+        this.isCreator = isCreator;
+
         VBox root = new VBox(20);
         root.setPadding(new Insets(20));
         root.setAlignment(Pos.CENTER);
@@ -195,15 +200,13 @@ public class GameClientApp extends Application {
         HBox buttonBox = new HBox(10);
         buttonBox.setAlignment(Pos.CENTER);
 
-        Button startButton;
         if (isCreator) {
             startButton = new Button("Начать игру");
+            startButton.setDisable(true); // Изначально неактивна
             startButton.setOnAction(e -> {
                 startButton.setDisable(true);
                 clientProcessor.sendGameStart();
             });
-        } else {
-            startButton = null;
         }
 
         Button cancelButton = new Button("Отмена");
@@ -212,7 +215,7 @@ public class GameClientApp extends Application {
             showLobbyScene();
         });
 
-        if (startButton != null) {
+        if (isCreator) {
             buttonBox.getChildren().addAll(startButton, cancelButton);
         } else {
             buttonBox.getChildren().add(cancelButton);
@@ -224,6 +227,16 @@ public class GameClientApp extends Application {
 
         Scene scene = new Scene(root, 400, 300);
         primaryStage.setScene(scene);
+    }
+
+    public void activateStartButton() {
+        Platform.runLater(() -> {
+            if (startButton != null) {
+                startButton.setDisable(false);
+                startButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white;");
+                showAlert("Второй игрок присоединился! Можно начинать игру.");
+            }
+        });
     }
 
     private void showGameScene(GameState gameState) {
@@ -382,6 +395,15 @@ public class GameClientApp extends Application {
         });
     }
 
+    public void onPlayerJoined(PlayerJoined playerJoined) {
+        Platform.runLater(() -> {
+            System.out.println("Player " + playerJoined.playerId() + " joined the room");
+            if (isCreator) {
+                // Если мы создатель комнаты, активируем кнопку "Начать игру"
+                activateStartButton();
+            }
+        });
+    }
 
     @Override
     public void stop() {
