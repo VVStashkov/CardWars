@@ -1,6 +1,7 @@
 package ru.itis.inf400.net.server;
 
 import ru.itis.inf400.Cards.Game;
+import ru.itis.inf400.Cards.Player;
 import ru.itis.inf400.net.dto.GameMessage;
 import ru.itis.inf400.net.dto.MessageType;
 import ru.itis.inf400.net.dto.records.*;
@@ -47,23 +48,29 @@ public class Room {
 
         gameStarted = true;
 
-        // Инициализируем игру
-        //todo изменить реализацию
-//        game = new Game(players.get(1), players.get(2));
-        game.setDefaultAttributes();
+        // Создаем игровых персонажей (объекты Player)
+        Player player1 = Player.createPlayer(1);
+        Player player2 = Player.createPlayer(2);
 
-        // Определяем, кто ходит первым (например, игрок 1)
+        // Инициализируем игру с двумя игроками
+        game = new Game(player1, player2);
+        game.setCurrentTurnPlayerId(1);
+
         currentTurnPlayerId = 1;
 
         // Отправляем сообщение о начале игры
         GameStartInfo startInfo = new GameStartInfo(name, currentTurnPlayerId);
-        GameMessage startMessage = new GameMessage(MessageType.GAME_START, JsonUtil.toJson(startInfo));
+        GameMessage startMessage = new GameMessage(
+                MessageType.GAME_START,
+                JsonUtil.toJson(startInfo)
+        );
         broadcast(startMessage);
 
         // Отправляем начальное состояние игры
         updateGameState();
 
         System.out.println("Game started in room: " + name);
+        System.out.println("First player to move: " + currentTurnPlayerId);
     }
 
     public synchronized void processAction(GameMessage message, ClientHandler sender) {
@@ -80,17 +87,17 @@ public class Room {
 
         try {
             switch (message.getType()) {
-                case PUT_CARD:
-                    handlePutCard(message, sender);
-                    break;
-                case ATTACK:
-                    handleAttack(message, sender);
-                    break;
                 case GET_CARD:
                     handleGetCard(message, sender);
                     break;
+                case PUT_CARD:
+                    handlePutCard(message, sender);
+                    break;
                 case USE_FLUP:
                     handleUseFlup(message, sender);
+                    break;
+                case ATTACK:
+                    handleAttack(message, sender);
                     break;
                 case QUIT_GAME:
                     handleQuitGame(message, sender);
@@ -103,20 +110,58 @@ public class Room {
         }
     }
 
-    private void handlePutCard(GameMessage message, ClientHandler sender) {
-        PutCard putCard = JsonUtil.fromJson(message.getPayloadAsString(), PutCard.class);
+    private void handleGetCard(GameMessage message, ClientHandler sender) {
+        GetCard getCard = JsonUtil.fromJson(message.getPayloadAsString(), GetCard.class);
 
-        // Проверяем валидность действия
-        if (!validatePlayerAction(sender, putCard.clientId())) {
+        if (!validatePlayerAction(sender, getCard.clientId())) {
             return;
         }
 
         // Выполняем действие через игровую логику
-        // game.processPutCard(putCard); // TODO: Реализовать в классе Game
+        boolean success = game.takeCard(getCard.clientId());
+        if (!success) {
+            sendError(sender, "Cannot take card");
+            return;
+        }
 
-        // Обновляем состояние и переключаем ход
+        // Отправляем обновленное состояние
         updateGameState();
-        switchTurn();
+    }
+
+    private void handlePutCard(GameMessage message, ClientHandler sender) {
+        PutCard putCard = JsonUtil.fromJson(message.getPayloadAsString(), PutCard.class);
+
+        if (!validatePlayerAction(sender, putCard.clientId())) {
+            return;
+        }
+
+        // Выполняем действие
+        boolean success = game.putCard(
+                putCard.clientId(),
+                putCard.positionInHand(),
+                putCard.requiredPositionOnField()
+        );
+
+        if (!success) {
+            sendError(sender, "Cannot place card");
+            return;
+        }
+
+        // Отправляем обновленное состояние
+        updateGameState();
+    }
+
+    private void handleUseFlup(GameMessage message, ClientHandler sender) {
+        FlupAction flup = JsonUtil.fromJson(message.getPayloadAsString(), FlupAction.class);
+        boolean success = game.useFlup(flup.clientId(), flup.fieldIndex(), flup.isWarrior());
+
+        if (!success) {
+            sendError(sender, "Cannot place card");
+            return;
+        }
+
+        // Отправляем обновленное состояние
+        updateGameState();
     }
 
     private void handleAttack(GameMessage message, ClientHandler sender) {
@@ -126,44 +171,54 @@ public class Room {
             return;
         }
 
-        // game.processAttack(attack); // TODO: Реализовать в классе Game
+        // Выполняем действие
+        boolean success = game.attack(attack.clientId());
+        if (!success) {
+            sendError(sender, "Cannot attack");
+            return;
+        }
 
         // Проверяем окончание игры
-        if (checkGameOver()) {
+        if (game.isGameOver()) {
+            handleGameOver(game.getWinnerId());
             return;
         }
 
+        // Отправляем обновленное состояние
         updateGameState();
-        switchTurn();
-    }
 
-    private void handleGetCard(GameMessage message, ClientHandler sender) {
-        GetCard getCard = JsonUtil.fromJson(message.getPayloadAsString(), GetCard.class);
-
-        if (!validatePlayerAction(sender, getCard.clientId())) {
-            return;
-        }
-
-        // game.processGetCard(getCard); // TODO: Реализовать в классе Game
-
-        updateGameState();
-        // Взятие карты не заканчивает ход
-    }
-
-    private void handleUseFlup(GameMessage message, ClientHandler sender) {
-        // TODO: Реализовать обработку флюпа
+        // Уведомляем о смене хода
+        sendPlayerTurnNotification();
     }
 
     private void handleQuitGame(GameMessage message, ClientHandler sender) {
         QuitGame quitGame = JsonUtil.fromJson(message.getPayloadAsString(), QuitGame.class);
 
-        // Уведомляем другого игрока о выходе
-        GameMessage quitMessage = new GameMessage(MessageType.GAME_OVER,
-                JsonUtil.toJson(new GameOver(getOpponentId(sender.getPlayerId()))));
+        // Выполняем выход из игры
+        boolean success = game.quitGame(quitGame.clientId());
+        if (success) {
+            handleGameOver(game.getWinnerId());
+        }
+    }
 
-        broadcast(quitMessage);
+    private void sendPlayerTurnNotification() {
+        PlayerTurn playerTurn = new PlayerTurn(game.getCurrentTurnPlayerId());
+        GameMessage turnMessage = new GameMessage(
+                MessageType.PLAYER_TURN,
+                JsonUtil.toJson(playerTurn)
+        );
 
-        // Закрываем комнату
+        broadcast(turnMessage);
+    }
+
+    private void handleGameOver(int winnerId) {
+        GameOver gameOver = new GameOver(winnerId);
+        GameMessage gameOverMessage = new GameMessage(
+                MessageType.GAME_OVER,
+                JsonUtil.toJson(gameOver)
+        );
+
+        broadcast(gameOverMessage);
         closeRoom();
     }
 
@@ -186,15 +241,12 @@ public class Room {
     }
 
     private void updateGameState() {
-        // Преобразуем состояние игры в GameState DTO
-        // GameState gameState = game.getGameState(); // TODO: Реализовать метод в Game
-
-        // Для примера создаем заглушку
-        GameState gameState = new GameState(java.util.List.of(), 1);
+        // Преобразуем состояние игры в DTO
+        GameStateDto gameStateDto = game.toGameStateDto();
 
         GameMessage updateMessage = new GameMessage(
                 MessageType.STATE_UPDATE,
-                JsonUtil.toJson(gameState)
+                JsonUtil.toJson(gameStateDto)
         );
 
         broadcast(updateMessage);
@@ -290,10 +342,25 @@ public class Room {
     public ClientHandler getPlayer(int playerId) {
         return players.get(playerId);
     }
-    public String getName() { return name; }
-    public boolean isFull() { return players.size() >= 2; }
-    public boolean hasPlayer(int playerId) { return players.containsKey(playerId); }
-    public int getPlayerCount() { return players.size(); }
-    public boolean isGameStarted() { return gameStarted; }
+
+    public String getName() {
+        return name;
+    }
+
+    public boolean isFull() {
+        return players.size() >= 2;
+    }
+
+    public boolean hasPlayer(int playerId) {
+        return players.containsKey(playerId);
+    }
+
+    public int getPlayerCount() {
+        return players.size();
+    }
+
+    public boolean isGameStarted() {
+        return gameStarted;
+    }
 }
 

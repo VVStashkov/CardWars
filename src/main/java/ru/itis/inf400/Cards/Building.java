@@ -2,7 +2,6 @@ package ru.itis.inf400.Cards;
 
 public abstract class Building extends Card{
     protected int position;
-    protected boolean flupped;
     @Override
     protected void put(Player player,  Player enemyPlayer) {
         Field field = player.getFields().get(position);

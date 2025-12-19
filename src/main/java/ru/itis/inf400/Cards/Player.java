@@ -1,9 +1,20 @@
 package ru.itis.inf400.Cards;
 
+import ru.itis.inf400.Cards.Warriors.Buffer;
+import ru.itis.inf400.Cards.Warriors.Healer;
+import ru.itis.inf400.Cards.Warriors.Swordsman;
+import ru.itis.inf400.net.dto.records.CardPlaceInGameType;
+import ru.itis.inf400.net.dto.records.fullUpdate.CardDto;
+import ru.itis.inf400.net.dto.records.fullUpdate.PlayerDto;
+import ru.itis.inf400.net.dto.records.fullUpdate.WarriorDto;
+
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
 
 public class Player implements Serializable {
 
@@ -16,6 +27,83 @@ public class Player implements Serializable {
     private List<Spell> usedSpells = new ArrayList<>();
 
     public Player() {
+    }
+
+    public static Player createPlayer(int playerId) {
+        Player player = new Player();
+
+        // Устанавливаем начальные значения
+        player.setHp(25);
+        player.setActionPoint(2);
+
+        // Создаем поля для игрока
+        List<Field> fields = createDefaultFields(playerId);
+        player.setFields(fields);
+
+        // Создаем колоду и перемешиваем
+        List<Card> deck = createDefaultDeck();
+        player.setDeck(deck);
+
+        // Раздаем начальные карты (например, 5 карт)
+        for (int i = 0; i < 5; i++) {
+            if (!player.getDeck().isEmpty()) {
+                Card card = player.getDeck().removeLast();
+                player.getHand().add(card);
+            }
+        }
+
+        // Инициализируем другие коллекции
+        player.setHand(new ArrayList<>());
+        player.setDrop(new ArrayList<>());
+
+        return player;
+    }
+
+    /**
+     * Создает поля для игрока
+     * В зависимости от playerId можно создать разные типы полей
+     */
+    private static List<Field> createDefaultFields(int playerId) {
+        List<Field> fields = new ArrayList<>(4);
+
+        // Для первого игрока - одни типы полей, для второго - другие
+        // Или одинаковые для обоих, в зависимости от логики игры
+        if (playerId == 1) {
+            // Игрок 1 (server player)
+            fields.add(new Field(FieldTypes.BLUEFIELD));
+            fields.add(new Field(FieldTypes.BLUEFIELD));
+            fields.add(new Field(FieldTypes.BLUEFIELD));
+            fields.add(new Field(FieldTypes.BLUEFIELD));
+        } else {
+            // Игрок 2 (client player)
+            fields.add(new Field(FieldTypes.CORNFIELD));
+            fields.add(new Field(FieldTypes.CORNFIELD));
+            fields.add(new Field(FieldTypes.CORNFIELD));
+            fields.add(new Field(FieldTypes.CORNFIELD));
+        }
+
+        return fields;
+    }
+    /**
+     * Инициализация дефолтной колоды
+     */
+    public static List<Card> createDefaultDeck() {
+        List<Card> deck = new LinkedList<>();
+        Random random = new Random();
+        int num = random.nextInt(5,7);
+        for (int i = 0; i < num; i++) {
+            deck.add(new Swordsman());
+        }
+        num = random.nextInt(5,7);
+        for (int i = 0; i < num; i++) {
+            deck.add(new Buffer());
+        }
+        num = random.nextInt(5,7);
+        for (int i = 0; i < num; i++) {
+            deck.add(new Healer());
+        }
+        Collections.shuffle(deck);
+        return deck;
     }
 
     public void attack(Player enemyPlayer) {
@@ -130,6 +218,101 @@ public class Player implements Serializable {
             ++i;
         }
 
+    }
+
+    public PlayerDto convertPlayerToDto(int playerId) {
+        List<String> fieldTypes = getFields().stream()
+                .map(field -> field.getType().name())
+                .collect(Collectors.toList());
+
+        List<WarriorDto> warriors = new ArrayList<>();
+        List<CardDto> otherCards = new ArrayList<>();
+
+        // Обрабатываем карты на полях
+        for (int i = 0; i < getFields().size(); i++) {
+            Field field = getFields().get(i);
+
+            // Воины на поле
+            if (field.getWarrior() != null) {
+                Warrior warrior = field.getWarrior();
+                warriors.add(new WarriorDto(
+                        warrior.name,
+                        warrior.description,
+                        warrior.cost,
+                        warrior.type != null ? warrior.type.name() : "NONE",
+                        CardPlaceInGameType.FIELD.getCode(),
+                        i,
+                        warrior.hp,
+                        warrior.attack,
+                        warrior.flupped
+                ));
+            }
+
+            // Здания на поле
+            if (field.getBuilding() != null) {
+                Building building = field.getBuilding();
+                otherCards.add(new CardDto(
+                        building.name,
+                        building.description,
+                        building.cost,
+                        building.type != null ? building.type.name() : "NONE",
+                        CardPlaceInGameType.FIELD.getCode(),
+                        i,
+                        building.flupped
+                ));
+            }
+        }
+
+        // Карты в руке
+        for (int i = 0; i < getHand().size(); i++) {
+            Card card = getHand().get(i);
+            if (card instanceof Warrior) {
+                Warrior warrior = (Warrior) card;
+                warriors.add(new WarriorDto(warrior.name,
+                                warrior.description,
+                                warrior.cost,
+                                warrior.type != null ? warrior.type.name() : "NONE",
+                                CardPlaceInGameType.FIELD.getCode(),
+                                i,
+                                warrior.hp,
+                                warrior.attack,
+                                warrior.flupped
+                        ));
+            } else {
+                otherCards.add(new CardDto(card.name,
+                        card.description,
+                        card.cost,
+                        card.type != null ? card.type.name() : "NONE",
+                        CardPlaceInGameType.FIELD.getCode(),
+                        i,
+                        card.flupped
+                ));
+            }
+        }
+
+        // Карты в сбросе
+        for (Card card : getDrop()) {
+            otherCards.add(new CardDto(
+                    card.name,
+                    card.description,
+                    card.cost,
+                    card.type != null ? card.type.name() : "NONE",
+                    CardPlaceInGameType.DROP.getCode(),
+                    getDrop().indexOf(card),
+                    false
+            ));
+        }
+
+        return new PlayerDto(
+                playerId,
+                getActionPoint(),
+                getHp(),
+                fieldTypes,
+                warriors,
+                otherCards,
+                getDeck().size(),
+                getDrop().size()
+        );
     }
 
     public int getActionPoint() {

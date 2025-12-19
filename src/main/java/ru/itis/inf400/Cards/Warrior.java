@@ -6,7 +6,6 @@ public abstract class Warrior extends Card{
     protected int hp;
     protected int attack;
     protected int position;
-    protected boolean flupped;
 
     @Override
     public void put(Player player, Player enemyPlayer) {
