@@ -45,7 +45,7 @@ public class Game implements Serializable{
     public String clientStep() {
         return play(clientPlayer, serverPlayer);
     }
-
+    //todo сделатьь методы в классе гейм, по типу atack(int player id)
 
         public String play(Player player, Player enemyplayer) {
         Scanner sc = new Scanner(System.in);
