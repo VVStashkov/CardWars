@@ -5,6 +5,7 @@ import ru.itis.inf400.Cards.Warrior;
 public class Swordsman extends Warrior {
 
     public Swordsman() {
+        name = "Swordsman";
         hp = 7;
         attack = 3;
         cost = 2;

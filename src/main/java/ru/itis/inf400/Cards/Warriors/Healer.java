@@ -7,6 +7,7 @@ import ru.itis.inf400.Cards.Warrior;
 public class Healer extends Warrior implements Flupable {
 
     public Healer() {
+        name = "Healer";
         hp = 4;
         attack = 0;
         cost = 1;

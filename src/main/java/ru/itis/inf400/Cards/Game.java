@@ -61,6 +61,9 @@ public class Game implements Serializable {
      */
     public boolean putCard(int playerId, int handIndex, int fieldIndex) {
         Player player = getPlayerById(playerId);
+        if (playerId == 2) {
+            fieldIndex = 3 - fieldIndex;
+        }
         Player enemy = getOpponentById(playerId);
 
         if (player == null || playerId != currentTurnPlayerId) {
@@ -286,7 +289,7 @@ public class Game implements Serializable {
         players.add(serverPlayer.convertPlayerToDto(1));
 
         // Преобразуем clientPlayer (playerId = 2)
-        players.add(serverPlayer.convertPlayerToDto(2));
+        players.add(clientPlayer.convertPlayerToDto(2));
 
         return new GameStateDto(players, currentTurnPlayerId, gameOver, winnerId);
     }

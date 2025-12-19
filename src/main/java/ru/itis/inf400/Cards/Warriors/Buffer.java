@@ -7,6 +7,7 @@ import ru.itis.inf400.Cards.Warrior;
 public class Buffer extends Warrior implements Flupable {
 
     public Buffer() {
+        name = "Buffer";
         hp = 4;
         attack = 1;
         cost = 1;

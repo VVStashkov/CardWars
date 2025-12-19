@@ -104,17 +104,17 @@ public class ClientProcessor {
                     break;
 
                 case GAME_START:
-                    GameState gameState = JsonUtil.fromJson(
+                    GameStartInfo gameStartInfo = JsonUtil.fromJson(
                             gameMessage.getPayloadAsString(),
-                            GameState.class
+                            GameStartInfo.class
                     );
-                    gameClientApp.onGameStart(gameState);
+                    gameClientApp.onPlayerTurn(gameStartInfo.firstPlayerId());
                     break;
 
                 case STATE_UPDATE:
-                    GameState updatedGameState = JsonUtil.fromJson(
+                    GameStateDto updatedGameState = JsonUtil.fromJson(
                             gameMessage.getPayloadAsString(),
-                            GameState.class
+                            GameStateDto.class
                     );
                     gameClientApp.onGameStateUpdate(updatedGameState);
                     break;

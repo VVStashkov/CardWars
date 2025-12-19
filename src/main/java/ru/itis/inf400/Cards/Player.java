@@ -53,7 +53,6 @@ public class Player implements Serializable {
         }
 
         // Инициализируем другие коллекции
-        player.setHand(new ArrayList<>());
         player.setDrop(new ArrayList<>());
 
         return player;
@@ -241,7 +240,7 @@ public class Player implements Serializable {
                         warrior.cost,
                         warrior.type != null ? warrior.type.name() : "NONE",
                         CardPlaceInGameType.FIELD.getCode(),
-                        i,
+                        playerId == 2 ? 3 - i : i,
                         warrior.hp,
                         warrior.attack,
                         warrior.flupped
@@ -272,7 +271,7 @@ public class Player implements Serializable {
                                 warrior.description,
                                 warrior.cost,
                                 warrior.type != null ? warrior.type.name() : "NONE",
-                                CardPlaceInGameType.FIELD.getCode(),
+                                CardPlaceInGameType.HAND.getCode(),
                                 i,
                                 warrior.hp,
                                 warrior.attack,
@@ -283,7 +282,7 @@ public class Player implements Serializable {
                         card.description,
                         card.cost,
                         card.type != null ? card.type.name() : "NONE",
-                        CardPlaceInGameType.FIELD.getCode(),
+                        CardPlaceInGameType.HAND.getCode(),
                         i,
                         card.flupped
                 ));

@@ -188,7 +188,7 @@ public class Room {
         updateGameState();
 
         // Уведомляем о смене хода
-        sendPlayerTurnNotification();
+        switchTurn();
     }
 
     private void handleQuitGame(GameMessage message, ClientHandler sender) {
@@ -202,6 +202,7 @@ public class Room {
     }
 
     private void sendPlayerTurnNotification() {
+
         PlayerTurn playerTurn = new PlayerTurn(game.getCurrentTurnPlayerId());
         GameMessage turnMessage = new GameMessage(
                 MessageType.PLAYER_TURN,

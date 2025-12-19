@@ -11,6 +11,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import ru.itis.inf400.net.dto.records.GameState;
+import ru.itis.inf400.net.dto.records.GameStateDto;
 import ru.itis.inf400.net.dto.records.PlayerJoined;
 
 import java.io.IOException;
@@ -105,7 +106,7 @@ public class GameClientApp extends Application {
         primaryStage.setScene(scene);
     }
 
-    private void showLobbyScene() {
+    void showLobbyScene() {
         VBox root = new VBox(20);
         root.setPadding(new Insets(20));
         root.setAlignment(Pos.CENTER);
@@ -239,56 +240,11 @@ public class GameClientApp extends Application {
         });
     }
 
-    private void showGameScene(GameState gameState) {
-        BorderPane root = new BorderPane();
-        root.setPadding(new Insets(10));
+    private void showGameScene(GameStateDto gameState) {
+        GameScene gameScene = new GameScene(this, clientProcessor);
+        gameScene.updateGameState(gameState);
 
-        // Верхняя панель - информация о игре
-        HBox topPanel = new HBox(20);
-        topPanel.setPadding(new Insets(10));
-        topPanel.setAlignment(Pos.CENTER);
-
-        Label roomLabel = new Label("Комната: " + currentRoom);
-        Label playerLabel = new Label("Игрок ID: " + playerId);
-        Label turnLabel = new Label("Ход игрока: " + gameState.currentPlayerId());
-
-        topPanel.getChildren().addAll(roomLabel, playerLabel, turnLabel);
-        root.setTop(topPanel);
-
-        // Центр - игровое поле
-        // TODO: Здесь будет реализация отрисовки игрового поля
-        Label gameFieldLabel = new Label("Игровое поле (будет реализовано позже)");
-        gameFieldLabel.setStyle("-fx-font-size: 16px;");
-        VBox centerBox = new VBox(20, gameFieldLabel);
-        centerBox.setAlignment(Pos.CENTER);
-        root.setCenter(centerBox);
-
-        // Нижняя панель - кнопки действий
-        HBox bottomPanel = new HBox(10);
-        bottomPanel.setPadding(new Insets(10));
-        bottomPanel.setAlignment(Pos.CENTER);
-
-        Button getCardButton = new Button("Взять карту");
-        Button attackButton = new Button("Атаковать");
-        Button quitButton = new Button("Выйти из игры");
-
-        getCardButton.setOnAction(e -> {
-            clientProcessor.sendGetCard();
-        });
-
-        attackButton.setOnAction(e -> {
-            clientProcessor.sendAttack();
-        });
-
-        quitButton.setOnAction(e -> {
-            clientProcessor.sendQuitGame();
-            showLobbyScene();
-        });
-
-        bottomPanel.getChildren().addAll(getCardButton, attackButton, quitButton);
-        root.setBottom(bottomPanel);
-
-        Scene scene = new Scene(root, 800, 600);
+        Scene scene = new Scene(gameScene, 1200, 800);
         primaryStage.setScene(scene);
     }
 
@@ -365,15 +321,17 @@ public class GameClientApp extends Application {
         });
     }
 
-    public void onGameStart(GameState gameState) {
+    public void onGameStateUpdate(GameStateDto gameState) {
         Platform.runLater(() -> {
-            showGameScene(gameState);
-        });
-    }
-
-    public void onGameStateUpdate(GameState gameState) {
-        Platform.runLater(() -> {
-            showGameScene(gameState);
+            if (primaryStage.getScene() != null &&
+                    primaryStage.getScene().getRoot() instanceof GameScene) {
+                // Обновляем существующую игровую сцену
+                GameScene gameScene = (GameScene) primaryStage.getScene().getRoot();
+                gameScene.updateGameState(gameState);
+            } else {
+                // Создаем новую игровую сцену
+                showGameScene(gameState);
+            }
         });
     }
 
