@@ -1,4 +1,4 @@
-// GameScene.java
+// GameScene.java - дополненная версия с флюпом
 package ru.itis.inf400.net.client;
 
 import javafx.application.Platform;
@@ -287,6 +287,7 @@ public class GameScene extends BorderPane {
         flupButton = new Button("Флюпнуть");
         flupButton.setPrefWidth(100);
         flupButton.setDisable(true);
+        flupButton.setOnAction(e -> handleFlupButtonClick());
 
         attackButton = new Button("Атаковать");
         attackButton.setPrefWidth(100);
@@ -310,10 +311,72 @@ public class GameScene extends BorderPane {
     private void handleFieldClick(int fieldIndex) {
         selectedFieldIndex = fieldIndex;
         updateFields();
+        updateButtons();
 
         if (selectedHandCard != null) {
             putCardButton.setDisable(false);
         }
+    }
+
+    private void handleFlupButtonClick() {
+        if (selectedFieldIndex == null) {
+            app.showAlert("Сначала выберите поле с картой для флюпа!");
+            return;
+        }
+
+        // Определяем, что находится на выбранном поле
+        boolean isWarrior = false;
+        PlayerDto currentPlayer = getCurrentPlayer();
+
+        if (currentPlayer != null) {
+            // Проверяем, есть ли воин на выбранном поле
+            for (WarriorDto warrior : currentPlayer.warriors()) {
+                if (warrior.placeCode() == CardPlaceInGameType.FIELD.getCode() &&
+                        warrior.position() == selectedFieldIndex) {
+                    isWarrior = true;
+                    break;
+                }
+            }
+        }
+
+        // Если на поле нет карты
+        if (!isWarrior) {
+            // Проверяем, есть ли здание на выбранном поле
+            boolean hasBuilding = false;
+            if (currentPlayer != null) {
+                for (CardDto card : currentPlayer.otherCard()) {
+                    if (card.placeCode() == CardPlaceInGameType.FIELD.getCode() &&
+                            card.position() == selectedFieldIndex) {
+                        hasBuilding = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!hasBuilding) {
+                app.showAlert("На выбранном поле нет карты для флюпа!");
+                return;
+            }
+        }
+
+        // Отправляем запрос на флюп
+        clientProcessor.sendFlupAction(selectedFieldIndex, isWarrior);
+
+        // Сбрасываем выбранное поле после отправки
+        selectedFieldIndex = null;
+        updateFields();
+        updateButtons();
+    }
+
+    private PlayerDto getCurrentPlayer() {
+        if (currentGameState == null) return null;
+
+        for (PlayerDto player : currentGameState.players()) {
+            if (player.id() == currentPlayerId) {
+                return player;
+            }
+        }
+        return null;
     }
 
     public void updateGameState(GameStateDto gameState) {
@@ -643,6 +706,9 @@ public class GameScene extends BorderPane {
             putCardButton.setDisable(false);
         }
 
+        // Обновляем состояние кнопок
+        updateButtons();
+
         // Показываем детальную информацию о карте
         showCardDetails(card);
     }
@@ -689,6 +755,8 @@ public class GameScene extends BorderPane {
         takeCardButton.setDisable(!isMyTurn);
         attackButton.setDisable(!isMyTurn);
         putCardButton.setDisable(!isMyTurn || selectedHandCard == null || selectedFieldIndex == null);
-        flupButton.setDisable(!isMyTurn);
+
+        // Кнопка "Флюпнуть" активна, если наш ход и выбрано поле
+        flupButton.setDisable(!isMyTurn || selectedFieldIndex == null);
     }
 }

@@ -180,6 +180,12 @@ public class ClientProcessor {
         sendMessage(MessageType.PUT_CARD, putCard);
     }
 
+    public void sendFlupAction(int requiredPositionOnField, boolean isWarrior) {
+        FlupAction flupAction = new FlupAction(playerId,
+                roomName, requiredPositionOnField, isWarrior);
+        sendMessage(MessageType.USE_FLUP, flupAction);
+    }
+
     public void sendAttack() {
         Attack attack = new Attack(playerId, roomName);
         sendMessage(MessageType.ATTACK, attack);
